@@ -1,0 +1,16 @@
+/* NexaSupply — Tema oscuro corporativo */
+:root {
+  --primary: #3B82F6;
+  --surface-ground: #0f172a;
+  --surface-section: #1e293b;
+  --surface-card: #1e293b;
+  --surface-border: #334155;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--surface-ground);
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
