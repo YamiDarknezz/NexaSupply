@@ -40,7 +40,7 @@ def simulate_payment(req: PaymentRequest):
     return PaymentResponse(success=False, transaction_id="", message="Transacción rechazada. Fondos insuficientes.")
 
 
-@router.post("/", response_model=CheckoutResponse)
+@router.post("", response_model=CheckoutResponse)
 def process_checkout(
     store_id: str = Depends(_get_store_id),
     db: Session = Depends(get_db),

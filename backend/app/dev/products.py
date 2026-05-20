@@ -1,3 +1,4 @@
+"""Dev products router — no auth required, mirrors /api/v1/products."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -9,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[ProductResponse])
-def list_products(
+def dev_list_products(
     category: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     db: Session = Depends(get_db),
@@ -22,21 +23,26 @@ def list_products(
     return q.order_by(Product.name).all()
 
 
-@router.get("/categories")
-def list_categories(db: Session = Depends(get_db)):
-    cats = (
-        db.query(Product.category)
-        .filter(Product.is_active == True, Product.category.isnot(None))
-        .distinct()
-        .order_by(Product.category)
-        .all()
-    )
-    return [c[0] for c in cats]
-
-
 @router.get("/{product_id}", response_model=ProductResponse)
-def get_product(product_id: str, db: Session = Depends(get_db)):
+def dev_get_product(product_id: str, db: Session = Depends(get_db)):
     product = db.query(Product).get(product_id)
     if not product:
         raise HTTPException(404, "Producto no encontrado")
+    return product
+
+
+@router.post("", response_model=ProductResponse, status_code=201)
+def dev_create_product(payload: dict, db: Session = Depends(get_db)):
+    product = Product(
+        name=payload["name"],
+        description=payload.get("description", ""),
+        price=payload["price"],
+        category=payload.get("category", ""),
+        image_url=payload.get("image_url", ""),
+        stock=payload.get("stock", 0),
+        is_active=True,
+    )
+    db.add(product)
+    db.commit()
+    db.refresh(product)
     return product

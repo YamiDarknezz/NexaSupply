@@ -18,7 +18,7 @@ def _get_store_id(authorization: str = Header(None)) -> str:
     raise HTTPException(401, "Autenticación requerida")
 
 
-@router.get("/", response_model=list[InventoryItemResponse])
+@router.get("", response_model=list[InventoryItemResponse])
 def list_inventory(
     store_id: str = Depends(_get_store_id),
     db: Session = Depends(get_db),

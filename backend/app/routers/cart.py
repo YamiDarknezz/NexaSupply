@@ -20,7 +20,7 @@ def _get_store_id(authorization: str = Header(None)) -> str:
     raise HTTPException(401, "Autenticación requerida")
 
 
-@router.get("/", response_model=list[CartItemResponse])
+@router.get("", response_model=list[CartItemResponse])
 def list_cart(
     store_id: str = Depends(_get_store_id),
     db: Session = Depends(get_db),
@@ -103,7 +103,7 @@ def remove_from_cart(
     return {"message": "Item eliminado del carrito"}
 
 
-@router.delete("/")
+@router.delete("")
 def clear_cart(
     store_id: str = Depends(_get_store_id),
     db: Session = Depends(get_db),

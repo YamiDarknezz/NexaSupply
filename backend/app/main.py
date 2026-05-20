@@ -3,11 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 from .core.database import engine, Base
 from .models import *  # noqa — carga todos los modelos para create_all
 from .routers import auth, products, cart, checkout, orders, inventory, admin
+from .dev import router as dev_router
+from .dev.auth import router as dev_auth_router
+from .dev.products import router as dev_products_router
+from .dev.orders import router as dev_orders_router
+from .dev.inventory import router as dev_inventory_router
+from .dev.subscriptions import router as dev_subscriptions_router
+from .dev.admin import router as dev_admin_router
+from .api.v1 import router as api_v1_router
+from .api.v1.auth import router as api_v1_auth_router
+from .api.v1.products import router as api_v1_products_router
+from .api.v1.orders import router as api_v1_orders_router
+from .api.v1.inventory import router as api_v1_inventory_router
+from .api.v1.subscriptions import router as api_v1_subscriptions_router
+from .api.v1.admin import router as api_v1_admin_router
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="NexaSupply API",
     description="Demo SaaS B2B — NexaSupply (Pauser Distribuciones 4PL)",
     version="0.1.0",
+    redirect_slashes=False,
 )
 
 # CORS para dev (Angular en :4200)
@@ -19,7 +37,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
+# ── Dev routers (no auth, for testing) ──
+app.include_router(dev_router, prefix="/dev", tags=["Dev"])
+app.include_router(dev_auth_router, prefix="/dev/auth", tags=["Dev Auth"])
+app.include_router(dev_products_router, prefix="/dev/products", tags=["Dev Products"])
+app.include_router(dev_orders_router, prefix="/dev/orders", tags=["Dev Orders"])
+app.include_router(dev_inventory_router, prefix="/dev/inventory", tags=["Dev Inventory"])
+app.include_router(dev_subscriptions_router, prefix="/dev/subscriptions", tags=["Dev Subscriptions"])
+app.include_router(dev_admin_router, prefix="/dev/admin", tags=["Dev Admin"])
+
+# ── API v1 routers (production, with JWT) ──
+app.include_router(api_v1_router, prefix="/api/v1", tags=["API v1"])
+app.include_router(api_v1_auth_router, prefix="/api/v1/auth", tags=["API v1 Auth"])
+app.include_router(api_v1_products_router, prefix="/api/v1/products", tags=["API v1 Products"])
+app.include_router(api_v1_orders_router, prefix="/api/v1/orders", tags=["API v1 Orders"])
+app.include_router(api_v1_inventory_router, prefix="/api/v1/inventory", tags=["API v1 Inventory"])
+app.include_router(api_v1_subscriptions_router, prefix="/api/v1/subscriptions", tags=["API v1 Subscriptions"])
+app.include_router(api_v1_admin_router, prefix="/api/v1/admin", tags=["API v1 Admin"])
+
+# ── Legacy routers (existing code, prefix /api/*) ──
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(cart.router, prefix="/api/cart", tags=["Cart"])
