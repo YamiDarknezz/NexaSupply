@@ -39,5 +39,9 @@ export const routes: Routes = [
     path: 'inventario',
     loadComponent: () => import('./pages/inventory/inventory.component').then(m => m.InventoryComponent),
   },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+  },
   { path: '**', redirectTo: '' },
 ];
