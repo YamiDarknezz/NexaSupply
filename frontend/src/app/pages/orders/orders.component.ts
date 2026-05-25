@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
@@ -78,8 +78,8 @@ interface Order {
                         [class.text-blue-800]="order.tracking_status === 'pending'"
                         [class.bg-yellow-100]="order.tracking_status === 'confirmed' || order.tracking_status === 'preparing'"
                         [class.text-yellow-800]="order.tracking_status === 'confirmed' || order.tracking_status === 'preparing'"
-                        [class.bg-orange-100]="order.tracking_status === 'shipped'"
-                        [class.text-orange-800]="order.tracking_status === 'shipped'"
+                        [class.bg-orange-100]="order.tracking_status === 'in_transit'"
+                        [class.text-orange-800]="order.tracking_status === 'in_transit'"
                         [class.bg-green-100]="order.tracking_status === 'delivered'"
                         [class.text-green-800]="order.tracking_status === 'delivered'">
                         {{ statusLabel(order.tracking_status) }}
@@ -163,6 +163,33 @@ interface Order {
                           <p class="text-sm text-gray-600">{{ order.shipping_address }}{{ order.shipping_city ? ', ' + order.shipping_city : '' }}</p>
                         </div>
                       }
+
+                      <!-- Action Buttons -->
+                      <div class="mt-4 pt-4 border-t flex gap-3">
+                        @if (order.tracking_status === 'confirmed') {
+                          <button (click)="advanceOrder(order.id); $event.stopPropagation()"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            📦 Enviar a preparación
+                          </button>
+                        }
+                        @if (order.tracking_status === 'preparing') {
+                          <button (click)="advanceOrder(order.id); $event.stopPropagation()"
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            🚛 Enviar a ruta
+                          </button>
+                        }
+                        @if (order.tracking_status === 'in_transit') {
+                          <button (click)="receiveOrder(order.id); $event.stopPropagation()"
+                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            ✅ Marcar como recibido
+                          </button>
+                        }
+                        @if (order.tracking_status === 'delivered') {
+                          <span class="flex-1 text-center text-sm text-green-600 font-medium py-2">
+                            ✅ Recibido — Agregado al inventario
+                          </span>
+                        }
+                      </div>
                     </div>
                   </div>
                 }
@@ -182,11 +209,13 @@ export class OrdersComponent implements OnInit {
   loading = true;
   expandedOrder: string | null = null;
 
+  private cdr = inject(ChangeDetectorRef);
+
   trackingSteps = [
     { key: 'pending', label: 'Pendiente', description: 'Pedido registrado, esperando confirmación' },
     { key: 'confirmed', label: 'Confirmado', description: 'Pedido confirmado, preparando productos' },
     { key: 'preparing', label: 'En preparación', description: 'Empacando tus productos' },
-    { key: 'shipped', label: 'En camino', description: 'El pedido está en ruta de entrega' },
+    { key: 'in_transit', label: 'En camino', description: 'El pedido está en ruta de entrega' },
     { key: 'delivered', label: 'Entregado', description: '¡Pedido entregado con éxito!' },
   ];
 
@@ -194,7 +223,7 @@ export class OrdersComponent implements OnInit {
     'pending': 'Pendiente',
     'confirmed': 'Confirmado',
     'preparing': 'Preparando',
-    'shipped': 'En camino',
+    'in_transit': 'En camino',
     'delivered': 'Entregado',
   };
 
@@ -205,13 +234,18 @@ export class OrdersComponent implements OnInit {
   }
 
   loadOrders(): void {
-    this.api.get<Order[]>('/orders').subscribe({
+    console.log('[Orders] loadOrders start');
+    this.api.get<Order[]>('/orders/').subscribe({
       next: (orders) => {
+        console.log('[Orders] orders loaded:', orders.length);
         this.orders = orders;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('[Orders] error loading orders:', err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -222,20 +256,50 @@ export class OrdersComponent implements OnInit {
     if (this.expandedOrder === id) {
       const order = this.orders.find(o => o.id === id);
       if (order && !order.items) {
-        this.api.get<Order>(`/orders/${id}`).subscribe({
+        console.log('[Orders] loading details for order:', id);
+        this.api.get<Order>(`/orders/${id}/`).subscribe({
           next: (fullOrder) => {
+            console.log('[Orders] order details loaded');
             const idx = this.orders.findIndex(o => o.id === id);
             if (idx >= 0) {
               this.orders[idx] = fullOrder;
+              this.cdr.detectChanges();
             }
-          }
+          },
+          error: (err) => console.error('[Orders] error loading details:', err)
         });
       }
     }
   }
 
+  advanceOrder(orderId: string): void {
+    this.api.post<any>(`/orders/${orderId}/advance`, {}).subscribe({
+      next: () => {
+        this.loadOrders();
+        this.expandedOrder = orderId;
+      },
+      error: (err) => {
+        alert(err.error?.detail || 'Error al avanzar el pedido');
+      }
+    });
+  }
+
+  receiveOrder(orderId: string): void {
+    if (!confirm('¿Confirmas que recibiste este pedido? Los productos se agregarán a tu inventario.')) return;
+    this.api.post<any>(`/orders/${orderId}/receive`, {}).subscribe({
+      next: (res) => {
+        alert(`¡Pedido recibido! ${res.inventory_updated} productos agregados a tu inventario.`);
+        this.loadOrders();
+        this.expandedOrder = orderId;
+      },
+      error: (err) => {
+        alert(err.error?.detail || 'Error al recibir el pedido');
+      }
+    });
+  }
+
   isStepActive(stepKey: string): boolean {
-    const statusOrder = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered'];
+    const statusOrder = ['pending', 'confirmed', 'preparing', 'in_transit', 'delivered'];
     const currentIdx = statusOrder.indexOf(this.expandedOrder 
       ? this.orders.find(o => o.id === this.expandedOrder)?.tracking_status || 'pending' 
       : 'pending');

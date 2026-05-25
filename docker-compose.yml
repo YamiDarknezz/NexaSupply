@@ -1,20 +1,40 @@
 services:
+
   db:
     image: postgres:16-alpine
-    container_name: nexasupply-db
     environment:
       POSTGRES_DB: nexasupply
       POSTGRES_USER: nexasupply
       POSTGRES_PASSWORD: nexasupply123
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nexasupply -d nexasupply"]
+      test: ["CMD-SHELL", "pg_isready -U nexasupply"]
       interval: 5s
       timeout: 3s
       retries: 5
+
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://nexasupply:nexasupply123@db:5432/nexasupply
+      JWT_SECRET: demo-secret-key-change-in-production
+      ADMIN_EMAIL: admin@nexasupply.store
+      ADMIN_PASSWORD: admin123
+
+  web:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
 
 volumes:
   pgdata:

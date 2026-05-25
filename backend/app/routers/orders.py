@@ -25,6 +25,19 @@ def list_orders(
     store_id: str = Depends(_get_store_id),
     db: Session = Depends(get_db),
 ):
+    return _list_orders(store_id, db)
+
+
+@router.get("/my", response_model=list[OrderResponse])
+def list_my_orders(
+    store_id: str = Depends(_get_store_id),
+    db: Session = Depends(get_db),
+):
+    """Alias para /orders/ — usado por el frontend."""
+    return _list_orders(store_id, db)
+
+
+def _list_orders(store_id: str, db: Session):
     orders = (
         db.query(Order)
         .filter(Order.store_id == store_id)
@@ -87,6 +100,43 @@ def get_order(
         created_at=o.created_at,
         items=items,
     )
+
+
+@router.post("/{order_id}/advance")
+def advance_tracking(
+    order_id: str,
+    store_id: str = Depends(_get_store_id),
+    db: Session = Depends(get_db),
+):
+    """Avanza manualmente el tracking de una orden (bodeguero o admin)."""
+    order = db.query(Order).filter(Order.id == order_id, Order.store_id == store_id).first()
+    if not order:
+        raise HTTPException(404, "Orden no encontrada")
+
+    transitions = {
+        "confirmed": "preparing",
+        "preparing": "in_transit",
+        "in_transit": "delivered",
+    }
+    next_status = transitions.get(order.tracking_status)
+    if not next_status:
+        raise HTTPException(400, f"No se puede avanzar desde {order.tracking_status}")
+
+    now = datetime.now(timezone.utc)
+    order.tracking_status = next_status
+    history = order.status_history or []
+    history.append({"status": next_status, "timestamp": now.isoformat()})
+    order.status_history = history
+
+    if next_status == "delivered":
+        order.delivered_at = now
+
+    db.commit()
+    return {
+        "order_id": str(order.id),
+        "tracking_status": order.tracking_status,
+        "status_history": order.status_history,
+    }
 
 
 @router.post("/{order_id}/receive")

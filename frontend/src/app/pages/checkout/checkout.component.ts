@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -263,10 +263,12 @@ export class CheckoutComponent implements OnInit {
   orderId = '';
   orderNumber = '';
   transactionId = '';
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private api: ApiService,
-    private router: Router
+    private router: Router,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -274,16 +276,24 @@ export class CheckoutComponent implements OnInit {
   }
 
   loadCart(): void {
-    this.api.get<CartItem[]>('/cart').subscribe({
+    console.log('[Checkout] loadCart start');
+    this.api.get<CartItem[]>('/cart/').subscribe({
       next: (items) => {
+        console.log('[Checkout] cart loaded:', items.length, JSON.stringify(items));
+        (window as any).__checkoutItems = items;
+        (window as any).__checkoutTotal = items.reduce((sum, i) => sum + i.product_price * i.quantity, 0);
         if (items.length === 0) {
           this.router.navigate(['/carrito']);
           return;
         }
         this.items = items;
         this.total = items.reduce((sum, i) => sum + i.product_price * i.quantity, 0);
+        console.log('[Checkout] total calculated:', this.total);
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('[Checkout] cart error:', err.status, err.statusText);
+        (window as any).__checkoutErr = err;
         this.router.navigate(['/carrito']);
       }
     });
@@ -292,32 +302,40 @@ export class CheckoutComponent implements OnInit {
   proceedToPayment(): void {
     if (!this.address.trim()) {
       this.error = 'Ingresa una dirección de envío';
+      this.cdr.detectChanges();
       return;
     }
     if (!this.phone.trim()) {
       this.error = 'Ingresa un número de teléfono';
+      this.cdr.detectChanges();
       return;
     }
 
     this.loading = true;
     this.error = '';
+    this.cdr.detectChanges();
 
     // Create order via checkout endpoint
-    this.api.post<CheckoutResponse>('/checkout', {
+    this.api.post<CheckoutResponse>('/checkout/', {
       shipping_address: this.address,
       shipping_city: this.city,
       shipping_phone: this.phone,
       notes: this.notes || undefined,
     }).subscribe({
       next: (res) => {
+        console.log('[Checkout] order created:', res.order_number, 'total:', res.total);
         this.orderId = res.order_id;
         this.orderNumber = res.order_number;
         this.loading = false;
         this.step = 'payment';
+        this.cdr.detectChanges();
+        console.log('[Checkout] step changed to payment');
       },
       error: (err) => {
+        console.error('[Checkout] order creation error:', err.status, err.statusText, err.error);
         this.loading = false;
         this.error = err.error?.detail || 'Error al crear el pedido. Intenta de nuevo.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -325,25 +343,32 @@ export class CheckoutComponent implements OnInit {
   processPayment(): void {
     if (!this.cardNumber.trim() || !this.expiry.trim() || !this.cvv.trim()) {
       this.paymentError = 'Completa todos los datos de la tarjeta';
+      this.cdr.detectChanges();
       return;
     }
-
     this.loadingPayment = true;
     this.paymentError = '';
     this.step = 'processing';
+    this.cdr.detectChanges();
 
-    // Simulate payment progress bar (3 seconds)
+    // Progress bar timer — runs outside Angular to avoid NG0100
     const duration = 3000;
-    const interval = 50;
-    const step = interval / duration * 100;
-    let progress = 0;
+    const tick = 50;
+    const tickPercent = tick / duration * 100;
+    let progressValue = 0;
+    let timer: any;
 
-    const timer = setInterval(() => {
-      progress += step;
-      this.progress = Math.min(progress, 90);
-    }, interval);
+    this.zone.runOutsideAngular(() => {
+      timer = setInterval(() => {
+        progressValue += tickPercent;
+        // Bring progress back into Angular zone for template binding
+        this.zone.run(() => {
+          this.progress = Math.min(progressValue, 90);
+        });
+      }, tick);
+    });
 
-    // Call payment simulation API
+    // Payment API call (stays inside Angular zone)
     this.api.post<PaymentResponse>('/checkout/payment/simulate', {
       card_number: this.cardNumber.replace(/\s/g, ''),
       expiry: this.expiry,
@@ -352,22 +377,26 @@ export class CheckoutComponent implements OnInit {
       card_holder: this.cardHolder || 'Cliente',
     }).subscribe({
       next: (res) => {
-        this.transactionId = res.transaction_id;
-
-        // Finish progress bar
+        console.log('[Checkout] payment success:', res.transaction_id);
         clearInterval(timer);
+        this.transactionId = res.transaction_id;
         this.progress = 100;
+        this.cdr.detectChanges();
 
         setTimeout(() => {
           this.loadingPayment = false;
           this.step = 'success';
+          this.cdr.detectChanges();
+          console.log('[Checkout] step changed to success');
         }, 500);
       },
       error: (err) => {
+        console.error('[Checkout] payment error:', err.status, err.statusText, err.error);
         clearInterval(timer);
         this.loadingPayment = false;
         this.paymentError = err.error?.detail || 'Error al procesar el pago. Intenta de nuevo.';
         this.step = 'payment';
+        this.cdr.detectChanges();
       }
     });
   }

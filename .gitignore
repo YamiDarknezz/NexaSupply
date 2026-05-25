@@ -1,46 +1,31 @@
-# Python
+# ── Python ──
 __pycache__/
 *.py[cod]
 *.egg-info/
-.eggs/
 dist/
-build/
 *.egg
 .venv/
 venv/
-env/
+backend/venv/
 
-# Environment
+# ── Node ──
+node_modules/
+dist/
+.tmp/
+
+# ── Angular ──
+frontend/.angular/
+frontend/dist/
+
+# ── Docker ──
 .env
-.env.local
-.env.*.local
 
-# IDE
+# ── IDE ──
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# Database
-*.db
-*.sqlite3
-
-# Docker
-pgdata/
-
-# Node
-node_modules/
-.pnpm-store/
-
-# Angular
-frontend/dist/
-frontend/.angular/
-
-# OS
+# ── OS ──
 .DS_Store
 Thumbs.db
-
-# Alembic
-backend/alembic/versions/*.pyc
-__pycache__/

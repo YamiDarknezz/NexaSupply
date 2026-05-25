@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
 interface InventoryItem {
@@ -134,6 +133,8 @@ export class InventoryComponent implements OnInit {
 
   constructor(private api: ApiService) {}
 
+  private cdr = inject(ChangeDetectorRef);
+
   ngOnInit(): void {
     this.loadInventory();
   }
@@ -147,13 +148,18 @@ export class InventoryComponent implements OnInit {
   }
 
   loadInventory(): void {
-    this.api.get<InventoryItem[]>('/inventory').subscribe({
+    console.log('[Inventory] loadInventory start');
+    this.api.get<InventoryItem[]>('/inventory/').subscribe({
       next: (data) => {
         this.inventory = data;
         this.loading = false;
+        console.log('[Inventory] loaded:', data.length);
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
+        console.error('[Inventory] error:', err);
+        this.cdr.detectChanges();
       }
     });
   }

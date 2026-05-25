@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -163,24 +163,36 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  private cdr = inject(ChangeDetectorRef);
+
   ngOnInit(): void {
     this.storeName = this.authService.getStoreName();
     this.loadData();
   }
 
   loadData(): void {
+    console.log('[Dashboard] loadData start');
     // Load products count
-    this.api.get<any[]>('/products').subscribe({
-      next: (products) => this.totalProducts = products.length,
+    this.api.get<any[]>('/products/').subscribe({
+      next: (products) => {
+        this.totalProducts = products.length;
+        console.log('[Dashboard] totalProducts:', this.totalProducts);
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('[Dashboard] products error:', err),
     });
 
     // Load orders
-    this.api.get<any[]>('/orders').subscribe({
+    this.api.get<any[]>('/orders/').subscribe({
       next: (orders) => {
+        console.log('[Dashboard] orders loaded:', orders.length);
         this.recentOrders = orders.slice(0, 5);
         this.totalOrders = orders.length;
         this.totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+        this.cdr.detectChanges();
+        console.log('[Dashboard] detectChanges after orders. recentOrders:', this.recentOrders.length);
       },
+      error: (err) => console.error('[Dashboard] orders error:', err),
     });
   }
 

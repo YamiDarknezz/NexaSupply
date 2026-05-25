@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -73,6 +73,16 @@ interface Product {
                   <span class="text-xl font-bold text-gray-900">S/ {{ product.price.toFixed(2) }}</span>
                   <span class="text-xs text-gray-400">Stock: {{ product.stock }}</span>
                 </div>
+                <!-- Quantity selector -->
+                <div class="flex items-center justify-center gap-2 mt-3">
+                  <button (click)="setQty(product.id, (quantities[product.id] || 1) - 1, product.stock)"
+                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">−</button>
+                  <input type="number" [value]="quantities[product.id] || 1"
+                    (change)="setQty(product.id, +$any($event).target.value, product.stock)"
+                    class="w-14 h-8 text-center border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" min="1" [max]="product.stock" />
+                  <button (click)="setQty(product.id, (quantities[product.id] || 1) + 1, product.stock)"
+                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">+</button>
+                </div>
                 <button (click)="addToCart(product)"
                   [disabled]="product.stock === 0"
                   class="mt-3 w-full py-2 px-4 rounded-lg font-medium text-sm transition
@@ -113,12 +123,15 @@ export class CatalogComponent implements OnInit {
   cartCount = 0;
   toastVisible = false;
   toastMessage = '';
+  quantities: Record<string, number> = {};
 
   private apiBase = 'http://192.168.100.70:8000/api';
+  private cdr = inject(ChangeDetectorRef);
 
-  constructor(private zone: NgZone) {}
+  constructor() {}
 
   ngOnInit(): void {
+    console.log('[Catalog] ngOnInit');
     this.loadProducts();
     this.loadCartCount();
   }
@@ -151,26 +164,35 @@ export class CatalogComponent implements OnInit {
 
   async loadProducts(): Promise<void> {
     try {
-      const res = await fetch(`${this.apiBase}/products`, {
+      console.log('[Catalog] loadProducts start');
+      const res = await fetch(`${this.apiBase}/products/`, {
         headers: {
           'Content-Type': 'application/json',
           ...(this.getToken() ? { Authorization: `Bearer ${this.getToken()}` } : {}),
         },
       });
+      console.log('[Catalog] fetch status:', res.status);
       const products: Product[] = await res.json();
-      this.zone.run(() => {
-        this.products = products;
-        this.categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
-        this.filterProducts();
-      });
-      console.log('Products loaded:', products.length);
+      console.log('[Catalog] products parsed:', products.length, products.slice(0,2));
+      this.products = products;
+      this.categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[];
+      for (const p of products) {
+        if (!this.quantities[p.id]) this.quantities[p.id] = 1;
+      }
+      this.filterProducts();
     } catch (e) {
-      console.error('Error loading products:', e);
+      console.error('[Catalog] Error loading products:', e);
     }
+  }
+
+  setQty(productId: string, qty: number, stock: number): void {
+    let val = Math.max(1, Math.min(qty, stock || qty));
+    this.quantities[productId] = val;
   }
 
   filterProducts(): void {
     let filtered = this.products;
+    console.log('[Catalog] filterProducts start. products:', this.products.length, 'selectedCategory:', JSON.stringify(this.selectedCategory), 'search:', JSON.stringify(this.search));
     if (this.selectedCategory) {
       filtered = filtered.filter(p => p.category === this.selectedCategory);
     }
@@ -179,31 +201,47 @@ export class CatalogComponent implements OnInit {
       filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
     }
     this.filteredProducts = filtered;
+    console.log('[Catalog] filteredProducts set to:', this.filteredProducts.length);
+    this.cdr.detectChanges();
+    console.log('[Catalog] detectChanges called');
   }
 
   async addToCart(product: Product): Promise<void> {
     try {
-      await this.apiPost<any>('/cart/add', { product_id: product.id, quantity: 1 });
-      this.cartCount++;
-      this.showToast(`${product.name} agregado al carrito`);
+      const qty = this.quantities[product.id] || 1;
+      console.log('[Catalog] addToCart', product.id, 'qty:', qty);
+      await this.apiPost<any>('/cart/add', { product_id: product.id, quantity: qty });
+      this.cartCount += qty;
+      console.log('[Catalog] cartCount updated:', this.cartCount);
+      this.showToast(`${product.name} ×${qty} agregado al carrito`);
+      this.cdr.detectChanges();
+      console.log('[Catalog] detectChanges after addToCart');
     } catch (e) {
+      console.error('[Catalog] addToCart error:', e);
       this.showToast('Error al agregar al carrito');
+      this.cdr.detectChanges();
     }
   }
 
   async loadCartCount(): Promise<void> {
     try {
-      const items: any[] = await this.apiGet<any[]>('/cart');
+      const items: any[] = await this.apiGet<any[]>('/cart/');
       this.cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
+      console.log('[Catalog] loadCartCount:', this.cartCount);
+      this.cdr.detectChanges();
     } catch (e) {
-      // silent
+      console.error('[Catalog] loadCartCount error:', e);
     }
   }
 
   showToast(msg: string): void {
     this.toastMessage = msg;
     this.toastVisible = true;
-    setTimeout(() => this.toastVisible = false, 3000);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.toastVisible = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   getProductEmoji(category: string): string {

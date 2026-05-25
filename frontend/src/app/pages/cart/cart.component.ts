@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
@@ -92,22 +92,33 @@ interface CartItem {
 export class CartComponent implements OnInit {
   items: CartItem[] = [];
   total = 0;
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private api: ApiService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
+    console.log('[Cart] ngOnInit');
     this.loadCart();
   }
 
   loadCart(): void {
-    this.api.get<CartItem[]>('/cart').subscribe({
+    const token = localStorage.getItem('nexa_token');
+    console.log('[Cart] loadCart — token exists:', !!token, 'token preview:', token ? token.substring(0, 20) + '...' : 'none');
+    this.api.get<CartItem[]>('/cart/').subscribe({
       next: (items) => {
+        console.log('[Cart] API response — items count:', items.length, 'raw:', JSON.stringify(items));
         this.items = items;
         this.total = items.reduce((sum, i) => sum + i.product_price * i.quantity, 0);
+        console.log('[Cart] state updated — items.length:', this.items.length, 'total:', this.total);
+        this.cdr.detectChanges();
+        console.log('[Cart] detectChanges called');
       },
+      error: (err) => {
+        console.error('[Cart] API error:', err.status, err.statusText, err.error);
+      }
     });
   }
 
