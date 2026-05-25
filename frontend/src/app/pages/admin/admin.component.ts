@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -439,6 +439,7 @@ export class AdminComponent implements OnInit {
   variantStock = 0;
 
   private apiBase = environment.apiBaseUrl;
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private api: ApiService,
@@ -457,21 +458,36 @@ export class AdminComponent implements OnInit {
     if (!this.email || !this.password) { this.error = 'Ingresa email y contrasena'; return; }
     this.loading = true;
     this.error = '';
+    console.log('[Admin] login attempt');
     this.api.post<any>('/admin/login', { email: this.email, password: this.password }).subscribe({
       next: (res) => {
-        localStorage.setItem('nexa_token', res.access_token);
+        console.log('[Admin] login ok');
+        localStorage.setItem('nexa_admin_token', res.access_token);
         this.loading = false;
         this.loadData();
       },
-      error: (err) => { this.loading = false; this.error = err.error?.detail || 'Credenciales invalidas'; }
+      error: (err) => {
+        console.error('[Admin] login error', err);
+        this.loading = false;
+        this.error = err.error?.detail || 'Error de conexion';
+      }
     });
   }
 
   loadData(): void {
+    console.log('[Admin] loadData');
     this.view = 'dashboard';
-    this.api.get<AdminStore[]>('/admin/stores').subscribe({ next: (data) => this.stores = data });
-    this.api.get<AdminOrder[]>('/admin/orders').subscribe({ next: (data) => this.orders = data });
-    this.api.get<AdminProduct[]>('/admin/products').subscribe({ next: (data) => this.products = data });
+    this.cdr.detectChanges();
+
+    this.api.get<AdminStore[]>('/admin/stores').subscribe({
+      next: (data) => this.stores = data,
+    });
+    this.api.get<AdminOrder[]>('/admin/orders').subscribe({
+      next: (data) => this.orders = data,
+    });
+    this.api.get<AdminProduct[]>('/admin/products').subscribe({
+      next: (data) => this.products = data,
+    });
   }
 
   // ── Orders ──
@@ -547,20 +563,22 @@ export class AdminComponent implements OnInit {
     if (this.imageAltText) formData.append('alt_text', this.imageAltText);
 
     try {
-      const token = localStorage.getItem('nexa_token');
+      const token = localStorage.getItem('nexa_admin_token');
       const res = await fetch(`${this.apiBase}/admin/products/${this.editingProduct.id}/images`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.detail || 'Upload failed'); }
       const img = await res.json();
       this.editingProduct.images.push(img);
       this.selectedFile = null;
       this.imageAltText = '';
-    } catch (e) {
-      alert('Error al subir imagen');
+    } catch (e: any) {
+      alert('Error al subir imagen: ' + (e.message || ''));
     } finally {
       this.uploading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -595,7 +613,7 @@ export class AdminComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('nexa_token');
+    localStorage.removeItem('nexa_admin_token');
     this.view = 'login';
     this.email = ''; this.password = '';
   }
