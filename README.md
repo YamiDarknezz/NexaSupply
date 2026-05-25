@@ -12,68 +12,96 @@ Ecosistema **SaaS B2B** para la transformación digital de **Pauser Distribucion
 
 ---
 
-## 🚀 Stack Tecnológico
+## Requisitos
 
-| Capa | Tecnología | Propósito |
-|------|-----------|-----------|
-| **Frontend** | Angular 17+ (Standalone + PrimeNG) | SPA con routing, dashboard, catálogo |
-| **Backend** | FastAPI (Python 3.11+) | API REST async, validación Pydantic |
-| **Base de datos** | PostgreSQL 16 + SQLAlchemy + Alembic | Migraciones, relaciones, integridad |
-| **Autenticación** | JWT (python-jose) | Tokens de acceso bodeguero + admin |
-| **Pasarela** | Mock inline en FastAPI | Simulación de pagos sin dependencias externas |
-| **Despliegue** | Docker Compose (3 servicios) | db + api + web |
+- **Docker Desktop** (v24+)
+- **Git**
+- **Windows 10/11** con WSL2 habilitado (o Linux/Mac)
+- ~5 GB de espacio libre en disco
 
 ---
 
-## 📦 Quick Start
+## Instalación y Ejecución
+
+### 1. Clonar el repositorio
 
 ```bash
-# 1. Clonar
 git clone https://github.com/YamiDarknezz/NexaSupply.git
 cd NexaSupply
-
-# 2. Iniciar todo
-docker compose up --build
-
-# 3. Abrir en navegador
-# Frontend:    http://localhost:80
-# Backend API: http://localhost:8000
-# Docs API:    http://localhost:8000/docs
 ```
 
-> ⚠️ La primera vez tarda un minuto en arrancar (PostgreSQL + migraciones + seed).
+### 2. Iniciar los servicios
+
+```bash
+docker compose up --build -d
+```
+
+Este comando:
+- Descarga las imágenes de **PostgreSQL 16**, **Python 3.11** y **Node 20**
+- Instala dependencias del backend (FastAPI, SQLAlchemy, etc.)
+- Compila el frontend Angular con configuración de producción
+- Inicia los 3 contenedores: `db`, `api`, `web`
+- **Ejecuta el seed automáticamente** (crea tablas + datos de prueba)
+
+> La primera vez tarda **2-5 minutos** en descargar imágenes y compilar.
+
+### 3. Verificar que todo está corriendo
+
+```bash
+docker compose ps
+```
+
+Debes ver 3 servicios con estado `Up`:
+
+| Servicio | Puerto | Estado |
+|----------|--------|--------|
+| `nexasupply-db-1` | 5432 | Up (healthy) |
+| `nexasupply-api-1` | 8000 | Up |
+| `nexasupply-web-1` | 80 | Up |
+
+### 4. Abrir en el navegador
+
+| Página | URL |
+|--------|-----|
+| Landing / Registro | http://localhost |
+| Catálogo de productos | http://localhost/productos |
+| Panel Admin | http://localhost/admin |
+| API Docs (Swagger) | http://localhost:8000/docs |
+| API Health | http://localhost:8000/api/health |
 
 ---
 
-## 🌱 Seed Data
+## Seed Data (se ejecuta automáticamente al iniciar)
 
-Al iniciar, la base de datos se siembra automáticamente con:
+El archivo `backend/app/seed.py` se ejecuta en el arranque y crea:
 
-### 10 Productos (Catálogo Pauser)
+### 12 Productos con imágenes SVG placeholder y variantes
 
-| Producto | Precio | Stock | Categoría |
-|----------|--------|-------|-----------|
-| Cerveza Cristal 355ml x6 | S/ 18.50 | 50 | Bebidas |
-| Galletas Oreo 12und | S/ 5.90 | 30 | Snacks |
-| Leche Ideal 400g | S/ 4.20 | 20 | Lácteos |
-| Arroz Costeño 1kg | S/ 3.80 | 100 | Abarrotes |
-| Aceite Primor 1L | S/ 8.90 | 45 | Abarrotes |
-| Inca Kola 500ml | S/ 2.50 | 80 | Bebidas |
-| Detergente Sapolio 500g | S/ 4.50 | 60 | Limpieza |
-| Panetón D'Onofrio 900g | S/ 25.00 | 15 | Estacional |
-| Chocolate Sublime 30g | S/ 1.50 | 200 | Snacks |
-| Aceitunas Don Lucho 250g | S/ 6.50 | 40 | Abarrotes |
+| Producto | Precio | Stock | Categoría | Variantes |
+|----------|--------|-------|-----------|-----------|
+| Cerveza Cristal 355ml x6 | S/ 18.50 | 50 | Bebidas | Botella/Lata/Retornable |
+| Galletas Oreo 12und | S/ 5.90 | 30 | Snacks | Clásico/Doble Crema/Mini |
+| Leche Ideal 400g | S/ 4.20 | 20 | Lácteos | — |
+| Arroz Costeño 1kg | S/ 3.80 | 100 | Abarrotes | — |
+| Aceite Primor 1L | S/ 8.90 | 45 | Abarrotes | — |
+| Inca Kola 500ml | S/ 2.50 | 80 | Bebidas | 500ml/1.5L/Lata |
+| Detergente Sapolio 500g | S/ 4.50 | 60 | Limpieza | Lavanda/Limón/Original |
+| Panetón D'Onofrio 900g | S/ 25.00 | 15 | Estacional | — |
+| Chocolate Sublime 30g | S/ 1.50 | 200 | Snacks | — |
+| Aceitunas Don Lucho 250g | S/ 6.50 | 40 | Abarrotes | — |
+| Fideos Don Vittorio 1kg | S/ 3.20 | 70 | Abarrotes | — |
+| Yogurt Gloria 1L | S/ 7.50 | 35 | Lácteos | — |
+
+Cada producto tiene **5 imágenes placeholder SVG** generadas automáticamente (fondo blanco, contexto bodega, detalle etiqueta, escala, variante).
 
 ### 2 Bodegas de Prueba
 
-| Bodega | Email | Plan | Estado |
-|--------|-------|------|--------|
-| Bodega Don Roberto | roberto@bodega.com | Premium | Activo |
-| Minimarket La Esquina | maria@minimarket.com | Basic | Activo |
+| Bodega | Email | Contraseña | Plan |
+|--------|-------|-----------|------|
+| Bodega Don Roberto | roberto@bodega.com | demo123 | Premium |
+| Minimarket La Esquina | maria@minimarket.com | demo123 | Basic |
 
-> **Contraseña de prueba para ambas:** `demo123`
-
-### 1 Admin
+### 1 Administrador
 
 | Email | Contraseña |
 |-------|-----------|
@@ -81,154 +109,189 @@ Al iniciar, la base de datos se siembra automáticamente con:
 
 ---
 
-## 🔌 API Endpoints
-
-### Autenticación (`/api/auth`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `POST` | `/api/auth/register` | Registrar nueva bodega (3 pasos en 1 request) |
-| `POST` | `/api/auth/login` | Login bodeguero → devuelve JWT |
-| `POST` | `/api/auth/admin/login` | Login admin → devuelve JWT |
-
-**Ejemplo register:**
-```json
-{
-  "name": "Bodega Don José",
-  "address": "Av. España 123, Trujillo",
-  "phone": "987654321",
-  "owner_name": "José López",
-  "email": "jose@bodega.com",
-  "password": "demo123",
-  "plan": "premium"
-}
-```
-
-### Productos (`/api/products`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/products` | Listar catálogo (filtro por ?category= y ?search=) |
-| `GET` | `/api/products/{id}` | Ficha detallada de producto |
-
-### Carrito (`/api/cart`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/cart` | Ver carrito de la bodega autenticada |
-| `POST` | `/api/cart/add` | Agregar producto (valida stock) |
-| `PUT` | `/api/cart/update/{item_id}` | Actualizar cantidad |
-| `DELETE` | `/api/cart/remove/{item_id}` | Eliminar item del carrito |
-
-**Ejemplo add:**
-```json
-{
-  "product_id": "a1b2c3d4-...",
-  "quantity": 6
-}
-```
-
-### Checkout (`/api/checkout`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `POST` | `/api/checkout` | Procesar compra (crea orden, reduce stock, vacía carrito) |
-| `POST` | `/api/payment/simulate` | Simular pago (95% éxito, valida formato tarjeta) |
-
-**Ejemplo payment:**
-```json
-{
-  "card_number": "4111111111111111",
-  "expiry": "12/28",
-  "cvv": "123",
-  "holder_name": "José López",
-  "amount": 185.50
-}
-```
-
-**Respuestas:**
-- ✅ 200: `{"status": "approved", "transaction_id": "TXN-nnnnnn"}`
-- ❌ 400: `{"status": "rejected", "reason": "Tarjeta sin fondos"}`
-
-### Pedidos (`/api/orders`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/orders` | Historial de pedidos de la bodega |
-| `GET` | `/api/orders/{id}` | Detalle + timeline de tracking |
-| `POST` | `/api/orders/{id}/receive` | Marcar como recibido (suma al inventario) |
-
-### Admin (`/api/admin`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/admin/orders` | Listar todas las órdenes |
-| `POST` | `/api/admin/orders/{id}/advance` | Avanzar tracking manualmente |
-
-### Inventario (`/api/inventory`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/inventory` | Ver inventario de la bodega autenticada |
-
----
-
-## 🧪 Flujo de Demo Recomendado
+## Flujo de Demo Recomendado
 
 ```
-1. Abrir landing (/) → "Registra tu bodega"
-2. Registrarse (/registro) → seleccionar plan
-3. Pagar suscripción mock (4111 1111 1111 1111)
-4. Login con credenciales creadas
-5. Dashboard → ver resumen
-6. Catálogo → explorar productos, filtrar por categoría
-7. Hacer clic en producto → ficha detallada con galería
-8. Agregar al carrito → ver mini-carrito
-9. Ir al carrito → ajustar cantidades
-10. Checkout → barra de progreso → pagar
-11. Confirmación con número de orden
-12. Tracking → timeline visual → "Marcar como recibido"
-13. Inventario → productos sumados
+1. Abrir http://localhost → Landing page
+2. Ir a /admin → login con admin@nexasupply.store / admin123
+   → Explorar panel: productos, pedidos, bodegas
+3. Ir a /login → login como roberto@bodega.com / demo123
+4. Dashboard → ver KPIs, acceso rápido
+5. Catálogo → explorar 12 productos, filtrar por categoría
+6. Hacer clic en un producto → galería, variantes, margen B2B
+7. Agregar al carrito desde el catálogo o detalle
+8. Ir al carrito → ver items, modificar cantidades
+9. Checkout → simular pago (procesa orden)
+10. Pedidos → timeline de tracking (4 estados)
+11. Inventario → stock actual de la bodega
 ```
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## Solución de Problemas
 
+### Error `ERR_CONNECTION_REFUSED`
+
+```bash
+# Verificar que Docker está corriendo
+docker info
+
+# Verificar que los contenedores están up
+docker compose ps
+
+# Ver logs del backend
+docker compose logs api
+
+# Ver logs del frontend
+docker compose logs web
 ```
-NexaSupply/
-├── backend/
-│   ├── main.py              → App FastAPI + routers
-│   ├── database.py          → Conexión PostgreSQL + SessionLocal
-│   ├── models.py            → SQLAlchemy models (Store, Product, Cart, Order, etc.)
-│   ├── schemas.py           → Pydantic schemas (request/response)
-│   ├── auth.py              → JWT creation + verification + password hashing
-│   ├── seed.py              → Seed data (productos, bodegas, admin)
-│   ├── requirements.txt     → Dependencias Python
-│   └── Dockerfile           → Imagen backend
-├── frontend/
-│   ├── ...                  → Angular app (Standalone components)
-│   └── Dockerfile           → Nginx + Angular build
-├── docker-compose.yml       → 3 servicios (db + api + web)
-├── .gitignore
-└── README.md
+
+### Reconstruir desde cero
+
+```bash
+# Bajar todo y eliminar volúmenes (borra la DB)
+docker compose down -v
+
+# Reconstruir y levantar
+docker compose up --build -d
+```
+
+### Ejecutar seed manualmente
+
+```bash
+docker compose exec api python -m app.seed
+```
+
+### Frontend no carga en localhost
+
+```bash
+# Probar si el API responde
+curl http://localhost:8000/api/health
+
+# Revisar si el build de Angular falló
+docker compose logs web | grep -i error
+```
+
+### Error de compilación Angular en Docker
+
+Si ves errores como `Cannot find module '@angular/cli/bin/ng.js'`, probablemente el lockfile está desactualizado. Solución:
+
+```bash
+cd frontend
+pnpm install
+git add pnpm-lock.yaml
+git commit -m "chore: update lockfile"
 ```
 
 ---
 
-## 📋 Pendientes / Roadmap
+## Comandos Útiles
 
-- [x] Backend completo (FastAPI + SQLAlchemy + JWT)
-- [x] Seed data automática
-- [x] Docker Compose funcional
-- [ ] Frontend Angular (en desarrollo)
-- [ ] Chatbot widget (Dialogflow CX)
-- [ ] Accesibilidad WCAG AA
-- [ ] HTTPS con Let's Encrypt
+```bash
+# Ver logs en tiempo real
+docker compose logs -f
+
+# Ver solo logs del API
+docker compose logs -f api
+
+# Ver solo logs del web
+docker compose logs -f web
+
+# Detener servicios
+docker compose down
+
+# Detener y borrar datos
+docker compose down -v
+
+# Reconstruir un servicio específico
+docker compose up --build -d web
+```
 
 ---
 
-## 🧑‍🤝‍🧑 Equipo NexaSupply
+## Stack Tecnológico
+
+| Capa | Tecnología | Propósito |
+|------|-----------|-----------|
+| **Frontend** | Angular 21 (Standalone) + PrimeNG + TailwindCSS | SPA con lazy loading |
+| **Backend** | FastAPI (Python 3.11+) | API REST async + validación Pydantic |
+| **Base de datos** | PostgreSQL 16 + SQLAlchemy 2.0 | ORM con joinedload |
+| **Autenticación** | JWT (python-jose + bcrypt) | Tokens bodeguero + admin |
+| **Imágenes** | SVGs placeholder inline | 5 imágenes por producto |
+| **Pasarela** | Mock interno | Simulación de pagos (95% éxito) |
+| **Contenedores** | Docker Compose | 3 servicios: db + api + web |
+
+---
+
+## API Endpoints
+
+### Autenticación
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/auth/register` | No | Registrar bodega |
+| POST | `/api/auth/login` | No | Login bodeguero → JWT |
+
+### Productos
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/products` | No | Listar (filtro `?category=` y `?search=`) |
+| GET | `/api/products/{id}` | No | Detalle con imágenes y variantes |
+
+### Carrito
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/cart` | JWT | Ver carrito |
+| POST | `/api/cart/add` | JWT | Agregar producto |
+| POST | `/api/cart/update` | JWT | Actualizar cantidad |
+| DELETE | `/api/cart/{item_id}` | JWT | Eliminar item |
+| DELETE | `/api/cart` | JWT | Vaciar carrito |
+
+### Checkout
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/checkout` | JWT | Procesar compra |
+| POST | `/api/checkout/payment/simulate` | No | Mock de pago |
+
+### Pedidos
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/orders/my` | JWT | Mis pedidos |
+| GET | `/api/orders/{id}` | JWT | Detalle + tracking |
+| POST | `/api/orders/{id}/advance` | JWT | Avanzar estado |
+| POST | `/api/orders/{id}/receive` | JWT | Marcar recibido |
+
+### Inventario
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/inventory` | JWT | Inventario de la bodega |
+
+### Admin
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/admin/login` | No | Login admin → JWT |
+| GET | `/api/admin/orders` | No | Listar pedidos |
+| POST | `/api/admin/orders/{id}/advance` | No | Avanzar tracking |
+| GET | `/api/admin/stores` | No | Listar bodegas |
+| GET | `/api/admin/products` | No | Listar productos (con imágenes) |
+| POST | `/api/admin/products` | No | Crear producto |
+| PUT | `/api/admin/products/{id}` | No | Actualizar producto |
+| DELETE | `/api/admin/products/{id}` | No | Eliminar producto |
+| POST | `/api/admin/products/{id}/images` | No | Subir imagen (multipart) |
+| DELETE | `/api/admin/products/{id}/images/{img_id}` | No | Eliminar imagen |
+| POST | `/api/admin/products/{id}/variants` | No | Crear variante |
+| PUT | `/api/admin/products/{id}/variants/{v_id}` | No | Actualizar variante |
+| DELETE | `/api/admin/products/{id}/variants/{v_id}` | No | Eliminar variante |
+
+---
+
+## Equipo NexaSupply
 
 | Integrante | Rol |
 |-----------|-----|
@@ -240,7 +303,5 @@ NexaSupply/
 | Romer Ramirez, Williams Anthony | Data & Machine Learning |
 
 ---
-
-## 📄 Licencia
 
 Proyecto académico — Universidad Privada del Norte — 2026-I
