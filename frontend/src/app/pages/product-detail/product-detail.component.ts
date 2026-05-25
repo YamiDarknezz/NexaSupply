@@ -283,6 +283,7 @@ export class ProductDetailComponent implements OnInit {
     this.api.post<any>('/cart/add', { product_id: this.product!.id, quantity: this.qty }).subscribe({
       next: (res) => {
         console.log('[ProductDetail] addToCart ok', res);
+        this.cartCount += this.qty;
         this.showToast(`${this.product!.name} x${this.qty} agregado al carrito`);
       },
       error: (err) => {
@@ -301,7 +302,11 @@ export class ProductDetailComponent implements OnInit {
   showToast(msg: string): void {
     this.toastMessage = msg;
     this.toastVisible = true;
-    setTimeout(() => this.toastVisible = false, 3000);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.toastVisible = false;
+      this.cdr.detectChanges();
+    }, 2500);
   }
 
   getEmoji(category?: string): string {
