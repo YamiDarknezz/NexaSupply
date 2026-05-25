@@ -158,7 +158,7 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                           <div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden shrink-0">
-                            @if (p.images?.length > 0) {
+                            @if (p.images.length > 0) {
                               <img [src]="p.images[0].url" class="w-full h-full object-cover" />
                             } @else { <span class="text-lg">📦</span> }
                           </div>
@@ -172,8 +172,8 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
                           {{ p.stock }}
                         </span>
                       </td>
-                      <td class="px-6 py-4 text-gray-300">{{ p.images?.length || 0 }}</td>
-                      <td class="px-6 py-4 text-gray-300">{{ p.variants?.length || 0 }}</td>
+                      <td class="px-6 py-4 text-gray-300">{{ p.images.length || 0 }}</td>
+                      <td class="px-6 py-4 text-gray-300">{{ p.variants.length || 0 }}</td>
                       <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded-full text-xs font-medium"
                           [class.bg-green-900]="p.is_active" [class.text-green-300]="p.is_active"

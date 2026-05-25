@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
 
 interface ProductImage {
   id: string; url: string; alt_text?: string; sort_order: number;
@@ -20,7 +19,7 @@ interface Product {
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule],
   template: `
     <div class="min-h-screen bg-gray-50">
       <!-- Navbar -->
@@ -293,11 +292,12 @@ export class ProductDetailComponent implements OnInit {
       });
       if (!res.ok) throw new Error('Producto no encontrado');
       this.product = await res.json();
-      if (this.product.images?.length > 0) {
-        this.selectedImage = this.product.images[0];
+      const p = this.product!;
+      if (p.images?.length > 0) {
+        this.selectedImage = p.images[0];
       }
-      if (this.product.variants?.length > 0) {
-        this.selectedVariant = this.product.variants[0];
+      if (p.variants?.length > 0) {
+        this.selectedVariant = p.variants[0];
       }
       this.loadRelated();
     } catch (e: any) {
