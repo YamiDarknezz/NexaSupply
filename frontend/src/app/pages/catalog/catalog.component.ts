@@ -85,15 +85,15 @@ interface Product {
                   </div>
                 </div>
               </a>
-              <div class="px-4 pb-4">
-                <div class="flex items-center gap-2 mb-2">
+              <div class="px-4 pb-3">
+                <div class="flex items-center justify-center gap-2 mb-2">
                   <button (click)="setQty(product.id, (quantities[product.id] || 1) - 1, product.stock)"
-                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm transition">−</button>
+                    class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">−</button>
                   <input type="number" [value]="quantities[product.id] || 1"
                     (change)="setQty(product.id, +$any($event).target.value, product.stock)"
-                    class="w-12 h-7 text-center border border-gray-300 rounded text-xs outline-none" min="1" [max]="product.stock" />
+                    class="w-14 h-9 text-center border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" min="1" [max]="product.stock" />
                   <button (click)="setQty(product.id, (quantities[product.id] || 1) + 1, product.stock)"
-                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm transition">+</button>
+                    class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">+</button>
                 </div>
                 <button (click)="addToCart($event, product)"
                   [disabled]="product.stock === 0"
