@@ -2,9 +2,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm && pnpm install --shamefully-hoist
 COPY . .
-RUN pnpm exec ng build --configuration production
+RUN ./node_modules/.bin/ng build --configuration production
 
 # Serve stage
 FROM nginx:alpine
