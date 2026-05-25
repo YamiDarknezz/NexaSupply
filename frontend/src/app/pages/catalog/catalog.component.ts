@@ -75,7 +75,7 @@ interface Product {
                     <span class="text-6xl">{{ getProductEmoji(product.category) }}</span>
                   }
                 </div>
-                <div class="p-4">
+                <div class="p-4 pb-2">
                   <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{{ product.category }}</span>
                   <h3 class="text-lg font-semibold text-gray-900 mt-2">{{ product.name }}</h3>
                   <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ product.description }}</p>
@@ -86,6 +86,15 @@ interface Product {
                 </div>
               </a>
               <div class="px-4 pb-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <button (click)="setQty(product.id, (quantities[product.id] || 1) - 1, product.stock)"
+                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm transition">−</button>
+                  <input type="number" [value]="quantities[product.id] || 1"
+                    (change)="setQty(product.id, +$any($event).target.value, product.stock)"
+                    class="w-12 h-7 text-center border border-gray-300 rounded text-xs outline-none" min="1" [max]="product.stock" />
+                  <button (click)="setQty(product.id, (quantities[product.id] || 1) + 1, product.stock)"
+                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm transition">+</button>
+                </div>
                 <button (click)="addToCart($event, product)"
                   [disabled]="product.stock === 0"
                   class="w-full py-2 px-4 rounded-lg font-medium text-sm transition"
@@ -186,9 +195,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     } catch (e: any) {
       console.error('[Catalog] Error loading products:', e.message || e);
-      this.toastMessage = 'Error al cargar productos';
-      this.toastVisible = true;
-      setTimeout(() => this.toastVisible = false, 5000);
+      this.showToast('Error al cargar productos');
     }
   }
 
@@ -215,22 +222,40 @@ export class CatalogComponent implements OnInit, OnDestroy {
     } catch { }
   }
 
+  setQty(productId: string, qty: number, stock: number): void {
+    this.quantities[productId] = Math.max(1, Math.min(qty, stock || qty));
+  }
+
   async addToCart(event: MouseEvent, product: Product): Promise<void> {
     event.preventDefault();
     const token = this.getToken();
-    if (!token) { this.toastMessage = 'Inicia sesion para agregar al carrito'; this.toastVisible = true; setTimeout(() => this.toastVisible = false, 3000); return; }
+    if (!token) {
+      this.showToast('Inicia sesion para agregar al carrito');
+      return;
+    }
+    const qty = this.quantities[product.id] || 1;
     try {
-      await fetch(`${this.apiBase}/cart/add`, {
+      const res = await fetch(`${this.apiBase}/cart/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+        body: JSON.stringify({ product_id: product.id, quantity: qty }),
       });
-      this.cartCount++;
+      if (!res.ok) throw new Error('Error');
+      this.cartCount += qty;
+      this.showToast(`${product.name} x${qty} agregado al carrito`);
+    } catch {
+      this.showToast('Error al agregar al carrito');
+    }
+  }
+
+  showToast(msg: string): void {
+    this.toastMessage = msg;
+    this.toastVisible = true;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.toastVisible = false;
       this.cdr.detectChanges();
-      this.toastMessage = `${product.name} agregado al carrito`;
-      this.toastVisible = true;
-      setTimeout(() => this.toastVisible = false, 3000);
-    } catch { this.toastMessage = 'Error al agregar'; this.toastVisible = true; setTimeout(() => this.toastVisible = false, 3000); }
+    }, 2500);
   }
 
   getProductEmoji(category: string): string {
