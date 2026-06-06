@@ -49,22 +49,22 @@ interface CartItem {
                   <h3 class="font-semibold text-gray-900 truncate">{{ item.product_name }}</h3>
                   <p class="text-sm text-gray-500">S/ {{ item.product_price.toFixed(2) }} c/u</p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                   <button (click)="updateQuantity(item, item.quantity - 1)"
-                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+                    class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-lg"
                     [disabled]="item.quantity <= 1">
-                    <span class="text-lg font-medium">−</span>
+                    <span>−</span>
                   </button>
                   <span class="w-8 text-center font-medium">{{ item.quantity }}</span>
                   <button (click)="updateQuantity(item, item.quantity + 1)"
-                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+                    class="w-11 h-11 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition text-lg"
                     [disabled]="item.quantity >= item.product_stock">
-                    <span class="text-lg font-medium">+</span>
+                    <span>+</span>
                   </button>
                 </div>
-                <div class="text-right">
-                  <p class="font-semibold text-gray-900">S/ {{ (item.product_price * item.quantity).toFixed(2) }}</p>
-                  <button (click)="removeItem(item)" class="text-xs text-red-600 hover:text-red-800 mt-1">Eliminar</button>
+                <div class="text-right shrink-0">
+                  <p class="font-semibold text-gray-900 whitespace-nowrap">S/ {{ (item.product_price * item.quantity).toFixed(2) }}</p>
+                  <button (click)="removeItem(item)" class="text-xs text-red-600 hover:text-red-800 mt-1 px-3 py-2 -mx-3">Eliminar</button>
                 </div>
               </div>
             }

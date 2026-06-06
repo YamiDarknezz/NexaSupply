@@ -30,12 +30,12 @@ interface Product {
               <span class="text-lg font-semibold text-gray-900">Catálogo</span>
             </div>
             <div class="flex items-center gap-4">
-              <a routerLink="/carrito" class="relative text-gray-600 hover:text-blue-600">
+              <a routerLink="/carrito" class="relative text-gray-600 hover:text-blue-600 p-3 -m-3">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
                 </svg>
                 @if (cartCount > 0) {
-                  <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{{ cartCount }}</span>
+                  <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{{ cartCount }}</span>
                 }
               </a>
             </div>
@@ -88,16 +88,16 @@ interface Product {
               <div class="px-4 pb-3">
                 <div class="flex items-center justify-center gap-2 mb-2">
                   <button (click)="setQty(product.id, (quantities[product.id] || 1) - 1, product.stock)"
-                    class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">−</button>
+                    class="w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition text-lg">−</button>
                   <input type="number" [value]="quantities[product.id] || 1"
                     (change)="setQty(product.id, +$any($event).target.value, product.stock)"
-                    class="w-14 h-9 text-center border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" min="1" [max]="product.stock" />
+                    class="w-14 h-11 text-center border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" min="1" [max]="product.stock" />
                   <button (click)="setQty(product.id, (quantities[product.id] || 1) + 1, product.stock)"
-                    class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition">+</button>
+                    class="w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition text-lg">+</button>
                 </div>
                 <button (click)="addToCart($event, product)"
                   [disabled]="product.stock === 0"
-                  class="w-full py-2 px-4 rounded-lg font-medium text-sm transition"
+                  class="w-full py-3 px-4 rounded-lg font-medium text-sm transition"
                   [class.bg-blue-600]="product.stock > 0"
                   [class.text-white]="product.stock > 0"
                   [class.hover:bg-blue-700]="product.stock > 0"

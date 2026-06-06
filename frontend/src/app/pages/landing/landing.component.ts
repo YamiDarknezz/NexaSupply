@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 export class LandingComponent {
   currentYear = new Date().getFullYear();
   scrolled = false;
+  menuOpen = false;
 
   features = [
     {
@@ -77,6 +78,11 @@ export class LandingComponent {
 
   scrollTo(sectionId: string) {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+    this.menuOpen = false;
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 
   getIcon(id: string): string {

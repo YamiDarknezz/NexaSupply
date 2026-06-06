@@ -165,27 +165,27 @@ interface Order {
                       }
 
                       <!-- Action Buttons -->
-                      <div class="mt-4 pt-4 border-t flex gap-3">
+                      <div class="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-3">
                         @if (order.tracking_status === 'confirmed') {
                           <button (click)="advanceOrder(order.id); $event.stopPropagation()"
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            class="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition text-sm">
                             📦 Enviar a preparación
                           </button>
                         }
                         @if (order.tracking_status === 'preparing') {
                           <button (click)="advanceOrder(order.id); $event.stopPropagation()"
-                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            class="w-full sm:flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition text-sm">
                             🚛 Enviar a ruta
                           </button>
                         }
                         @if (order.tracking_status === 'in_transit') {
                           <button (click)="receiveOrder(order.id); $event.stopPropagation()"
-                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                            class="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition text-sm">
                             ✅ Marcar como recibido
                           </button>
                         }
                         @if (order.tracking_status === 'delivered') {
-                          <span class="flex-1 text-center text-sm text-green-600 font-medium py-2">
+                          <span class="w-full sm:flex-1 text-center text-sm text-green-600 font-medium py-3">
                             ✅ Recibido — Agregado al inventario
                           </span>
                         }

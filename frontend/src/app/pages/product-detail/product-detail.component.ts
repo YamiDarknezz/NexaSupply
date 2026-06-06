@@ -32,19 +32,19 @@ interface MyOrder {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16 items-center">
             <div class="flex items-center gap-3">
-              <a routerLink="/productos" class="text-gray-600 hover:text-blue-600 transition">
+              <a routerLink="/productos" class="text-gray-600 hover:text-blue-600 transition p-3 -ml-3">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
               </a>
               <a routerLink="/dashboard" class="text-2xl font-bold text-blue-600">NexaSupply</a>
             </div>
-            <a routerLink="/carrito" class="relative text-gray-600 hover:text-blue-600">
+            <a routerLink="/carrito" class="relative text-gray-600 hover:text-blue-600 p-3 -m-3">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
               </svg>
               @if (cartCount > 0) {
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{{ cartCount }}</span>
+                <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{{ cartCount }}</span>
               }
             </a>
           </div>
@@ -140,7 +140,7 @@ interface MyOrder {
                   <div class="flex flex-wrap gap-2">
                     @for (v of product.variants; track v.id) {
                       <button (click)="selectVariant(v)"
-                        class="px-4 py-2 rounded-lg border-2 text-sm font-medium transition"
+                        class="px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition"
                         [class.border-blue-500]="selectedVariant?.id === v.id"
                         [class.bg-blue-50]="selectedVariant?.id === v.id"
                         [class.border-gray-200]="selectedVariant?.id !== v.id">
@@ -155,9 +155,9 @@ interface MyOrder {
 
               <div class="mt-8 flex items-center gap-4">
                 <div class="flex items-center border border-gray-300 rounded-lg">
-                  <button (click)="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-lg transition">−</button>
-                  <input type="number" [(ngModel)]="qty" class="w-16 h-10 text-center border-x border-gray-300 text-sm outline-none" min="1" [max]="stockDisplay" />
-                  <button (click)="qty = Math.min(stockDisplay || 1, qty + 1)" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-lg transition">+</button>
+                  <button (click)="qty = Math.max(1, qty - 1)" class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-lg transition text-lg">−</button>
+                  <input type="number" [(ngModel)]="qty" class="w-16 h-11 text-center border-x border-gray-300 text-sm outline-none" min="1" [max]="stockDisplay" />
+                  <button (click)="qty = Math.min(stockDisplay || 1, qty + 1)" class="w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-lg transition text-lg">+</button>
                 </div>
                 <button (click)="addToCart()"
                   [disabled]="stockDisplay === 0"
@@ -258,7 +258,7 @@ interface MyOrder {
                 @if (!showReviewForm && !myReview) {
                   <div class="flex justify-start mb-6">
                     <button (click)="showReviewForm = true"
-                      class="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-800 font-semibold text-sm px-4 py-2 rounded-lg transition">
+                      class="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-800 font-semibold text-sm px-4 py-2.5 rounded-lg transition">
                       ✍️ Escribir una opinión
                     </button>
                   </div>
@@ -309,13 +309,13 @@ interface MyOrder {
                       <p class="text-xs text-red-600 mt-2">{{ reviewError }}</p>
                     }
 
-                    <div class="flex gap-2 mt-3">
+                    <div class="flex flex-col sm:flex-row gap-2 mt-3">
                       <button (click)="showReviewForm = false; reviewError = ''"
-                        class="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition">
+                        class="px-4 py-2.5 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition">
                         Cancelar
                       </button>
                       <button (click)="submitReview()" [disabled]="submittingReview || reviewRating === 0"
-                        class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="px-4 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                         @if (submittingReview) { Enviando... } @else { Publicar opinión }
                       </button>
                     </div>

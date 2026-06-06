@@ -25,7 +25,7 @@ interface InventoryItem {
               <span class="text-lg font-semibold text-gray-900">Inventario</span>
             </div>
             <a routerLink="/ventas"
-              class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+              class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition">
               🧾 Ir a Ventas
             </a>
           </div>

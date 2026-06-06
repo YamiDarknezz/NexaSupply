@@ -5,7 +5,11 @@
       <span class="logo-icon">◆</span>
       <span class="logo-text">Nexa<span class="logo-highlight">Supply</span></span>
     </a>
-    <div class="nav-links">
+    <button class="hamburger" [class.open]="menuOpen" (click)="toggleMenu()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-overlay" [class.show]="menuOpen" (click)="toggleMenu()"></div>
+    <div class="nav-links" [class.show]="menuOpen">
       <a (click)="scrollTo('features')">Cómo funciona</a>
       <a (click)="scrollTo('planes')">Planes</a>
       <a (click)="scrollTo('marcas')">Marcas</a>

@@ -74,18 +74,18 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
 
       @if (view === 'dashboard') {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div class="flex items-center justify-between mb-8">
-            <div>
-              <h1 class="text-2xl font-bold text-white">Panel de Administracion</h1>
-              <p class="text-gray-400">Gestiona bodegas, pedidos y productos</p>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+              <div>
+                <h1 class="text-2xl font-bold text-white">Panel de Administracion</h1>
+                <p class="text-gray-400">Gestiona bodegas, pedidos y productos</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button (click)="view = 'products'" class="text-sm text-blue-400 hover:text-blue-300 px-3 py-2">Productos</button>
+                <button (click)="view = 'orders'" class="text-sm text-blue-400 hover:text-blue-300 px-3 py-2">Pedidos</button>
+                <button (click)="view = 'stores'" class="text-sm text-blue-400 hover:text-blue-300 px-3 py-2">Bodegas</button>
+                <button (click)="logout()" class="text-sm text-red-400 hover:text-red-300 px-3 py-2">Cerrar sesion</button>
+              </div>
             </div>
-            <div class="flex items-center gap-4">
-              <button (click)="view = 'products'" class="text-sm text-blue-400 hover:text-blue-300">Productos</button>
-              <button (click)="view = 'orders'" class="text-sm text-blue-400 hover:text-blue-300">Pedidos</button>
-              <button (click)="view = 'stores'" class="text-sm text-blue-400 hover:text-blue-300">Bodegas</button>
-              <button (click)="logout()" class="text-sm text-red-400 hover:text-red-300">Cerrar sesion</button>
-            </div>
-          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-gray-800 rounded-xl p-6">
               <p class="text-sm text-gray-400">Productos</p>
@@ -135,56 +135,56 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
               <h1 class="text-2xl font-bold text-white mt-2">Gestion de Productos</h1>
             </div>
             <button (click)="openNewProduct()"
-              class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">+ Nuevo Producto</button>
+              class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition whitespace-nowrap">+ Nuevo Producto</button>
           </div>
           <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead>
                   <tr class="text-left text-gray-400 border-b border-gray-700 bg-gray-850">
-                    <th class="px-6 py-3 font-medium">Producto</th>
-                    <th class="px-6 py-3 font-medium">Categoria</th>
-                    <th class="px-6 py-3 font-medium">Precio</th>
-                    <th class="px-6 py-3 font-medium">Stock</th>
-                    <th class="px-6 py-3 font-medium">Imagenes</th>
-                    <th class="px-6 py-3 font-medium">Variantes</th>
-                    <th class="px-6 py-3 font-medium">Estado</th>
-                    <th class="px-6 py-3 font-medium text-center">Acciones</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Producto</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Categoria</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Precio</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Stock</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Imagenes</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Variantes</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Estado</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (p of products; track p.id) {
                     <tr class="border-b border-gray-700 last:border-0 hover:bg-gray-750">
-                      <td class="px-6 py-4">
+                      <td class="px-4 sm:px-6 py-4">
                         <div class="flex items-center gap-3">
                           <div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden shrink-0">
                             @if (p.images.length > 0) {
                               <img [src]="p.images[0].url" class="w-full h-full object-cover" />
                             } @else { <span class="text-lg">📦</span> }
                           </div>
-                          <span class="text-white font-medium">{{ p.name }}</span>
+                          <span class="text-white font-medium truncate">{{ p.name }}</span>
                         </div>
                       </td>
-                      <td class="px-6 py-4 text-gray-300">{{ p.category || '—' }}</td>
-                      <td class="px-6 py-4 text-gray-300">S/ {{ p.price.toFixed(2) }}</td>
-                      <td class="px-6 py-4">
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">{{ p.category || '—' }}</td>
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">S/ {{ p.price.toFixed(2) }}</td>
+                      <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <span [class.text-green-400]="p.stock > 10" [class.text-yellow-400]="p.stock > 0 && p.stock <= 10" [class.text-red-400]="p.stock === 0">
                           {{ p.stock }}
                         </span>
                       </td>
-                      <td class="px-6 py-4 text-gray-300">{{ p.images.length || 0 }}</td>
-                      <td class="px-6 py-4 text-gray-300">{{ p.variants.length || 0 }}</td>
-                      <td class="px-6 py-4">
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">{{ p.images.length || 0 }}</td>
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">{{ p.variants.length || 0 }}</td>
+                      <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 rounded-full text-xs font-medium"
                           [class.bg-green-900]="p.is_active" [class.text-green-300]="p.is_active"
                           [class.bg-red-900]="!p.is_active" [class.text-red-300]="!p.is_active">
                           {{ p.is_active ? 'Activo' : 'Inactivo' }}
                         </span>
                       </td>
-                      <td class="px-6 py-4 text-center">
+                      <td class="px-4 sm:px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
-                          <button (click)="editProduct(p)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition">Editar</button>
-                          <button (click)="deleteProduct(p)" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-lg transition">Eliminar</button>
+                          <button (click)="editProduct(p)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4 py-2.5 rounded-lg transition">Editar</button>
+                          <button (click)="deleteProduct(p)" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-4 py-2.5 rounded-lg transition">Eliminar</button>
                         </div>
                       </td>
                     </tr>
@@ -207,31 +207,31 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Nombre</label>
-                <input type="text" [(ngModel)]="formName" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="text" [(ngModel)]="formName" class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Categoria</label>
-                <input type="text" [(ngModel)]="formCategory" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Bebidas, Snacks" />
+                <input type="text" [(ngModel)]="formCategory" class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Bebidas, Snacks" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Precio (S/)</label>
-                <input type="number" [(ngModel)]="formPrice" step="0.1" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="number" [(ngModel)]="formPrice" step="0.1" class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Stock</label>
-                <input type="number" [(ngModel)]="formStock" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="number" [(ngModel)]="formStock" class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-300 mb-1">Descripcion</label>
-                <textarea [(ngModel)]="formDescription" rows="3" class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <textarea [(ngModel)]="formDescription" rows="3" class="w-full px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white outline-none focus:ring-2 focus:ring-blue-500"></textarea>
               </div>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-col sm:flex-row gap-3">
               <button (click)="saveProduct()" [disabled]="saving"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg transition disabled:opacity-50">
+                class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50">
                 {{ saving ? 'Guardando...' : 'Guardar Producto' }}
               </button>
-              <button (click)="cancelProductForm()" class="bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 py-2.5 rounded-lg transition">Cancelar</button>
+              <button (click)="cancelProductForm()" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 py-3 rounded-lg transition">Cancelar</button>
             </div>
           </div>
 
@@ -259,13 +259,13 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
 
               <div class="border-t border-gray-700 pt-4">
                 <h3 class="text-sm font-medium text-gray-300 mb-3">Subir nueva imagen</h3>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <input type="file" (change)="onImageSelected($event)" accept="image/*"
-                    class="text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
+                    class="text-sm text-gray-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
                   <input type="text" [(ngModel)]="imageAltText" placeholder="Texto alternativo"
-                    class="flex-1 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                    class="flex-1 px-4 py-2.5 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
                   <button (click)="uploadImage()" [disabled]="!selectedFile || uploading"
-                    class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50">
+                    class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition disabled:opacity-50 whitespace-nowrap">
                     {{ uploading ? 'Subiendo...' : 'Subir' }}
                   </button>
                 </div>
@@ -287,15 +287,15 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
                   }
                 </div>
               }
-              <div class="flex items-center gap-3">
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <input type="text" [(ngModel)]="variantName" placeholder="Nombre (ej: Lata 355ml)"
-                  class="flex-1 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="flex-1 px-4 py-2.5 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
                 <input type="number" [(ngModel)]="variantModifier" placeholder="Ajuste S/" step="0.1"
-                  class="w-28 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full sm:w-28 px-4 py-2.5 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
                 <input type="number" [(ngModel)]="variantStock" placeholder="Stock"
-                  class="w-24 px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full sm:w-24 px-4 py-2.5 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500" />
                 <button (click)="addVariant()"
-                  class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">Agregar</button>
+                  class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition whitespace-nowrap">Agregar</button>
               </div>
             </div>
           }
@@ -311,53 +311,55 @@ type View = 'login' | 'dashboard' | 'orders' | 'stores' | 'products' | 'product-
             </div>
           </div>
           <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="text-left text-gray-400 border-b border-gray-700 bg-gray-850">
-                  <th class="px-6 py-3 font-medium">N° Pedido</th>
-                  <th class="px-6 py-3 font-medium">Bodega</th>
-                  <th class="px-6 py-3 font-medium">Total</th>
-                  <th class="px-6 py-3 font-medium">Estado</th>
-                  <th class="px-6 py-3 font-medium">Fecha</th>
-                  <th class="px-6 py-3 font-medium text-center">Accion</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (order of orders; track order.id) {
-                  <tr class="border-b border-gray-700 last:border-0 hover:bg-gray-750">
-                    <td class="px-6 py-4 font-medium text-blue-400">{{ order.order_number }}</td>
-                    <td class="px-6 py-4 text-gray-300">{{ order.store_name || '—' }}</td>
-                    <td class="px-6 py-4 text-gray-300">S/ {{ order.total.toFixed(2) }}</td>
-                    <td class="px-6 py-4">
-                      <span class="px-2 py-1 rounded-full text-xs font-medium"
-                        [class.bg-blue-900]="order.tracking_status === 'pending'"
-                        [class.text-blue-300]="order.tracking_status === 'pending'"
-                        [class.bg-yellow-900]="order.tracking_status === 'confirmed'"
-                        [class.text-yellow-300]="order.tracking_status === 'confirmed'"
-                        [class.bg-orange-900]="order.tracking_status === 'shipped'"
-                        [class.text-orange-300]="order.tracking_status === 'shipped'"
-                        [class.bg-green-900]="order.tracking_status === 'delivered'"
-                        [class.text-green-300]="order.tracking_status === 'delivered'">
-                        {{ order.tracking_status }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 text-gray-400">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                    <td class="px-6 py-4 text-center">
-                      @if (order.tracking_status !== 'delivered') {
-                        <button (click)="advanceOrder(order)"
-                          class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
-                          Avanzar
-                        </button>
-                      } @else {
-                        <span class="text-xs text-gray-500">Completado</span>
-                      }
-                    </td>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-gray-400 border-b border-gray-700 bg-gray-850">
+                    <th class="px-4 sm:px-6 py-3 font-medium">N° Pedido</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Bodega</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Total</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Estado</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium">Fecha</th>
+                    <th class="px-4 sm:px-6 py-3 font-medium text-center">Accion</th>
                   </tr>
-                } @empty {
-                  <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No hay pedidos registrados</td></tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @for (order of orders; track order.id) {
+                    <tr class="border-b border-gray-700 last:border-0 hover:bg-gray-750">
+                      <td class="px-4 sm:px-6 py-4 font-medium text-blue-400 whitespace-nowrap">{{ order.order_number }}</td>
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">{{ order.store_name || '—' }}</td>
+                      <td class="px-4 sm:px-6 py-4 text-gray-300 whitespace-nowrap">S/ {{ order.total.toFixed(2) }}</td>
+                      <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium"
+                          [class.bg-blue-900]="order.tracking_status === 'pending'"
+                          [class.text-blue-300]="order.tracking_status === 'pending'"
+                          [class.bg-yellow-900]="order.tracking_status === 'confirmed'"
+                          [class.text-yellow-300]="order.tracking_status === 'confirmed'"
+                          [class.bg-orange-900]="order.tracking_status === 'shipped'"
+                          [class.text-orange-300]="order.tracking_status === 'shipped'"
+                          [class.bg-green-900]="order.tracking_status === 'delivered'"
+                          [class.text-green-300]="order.tracking_status === 'delivered'">
+                          {{ order.tracking_status }}
+                        </span>
+                      </td>
+                      <td class="px-4 sm:px-6 py-4 text-gray-400 whitespace-nowrap">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td class="px-4 sm:px-6 py-4 text-center whitespace-nowrap">
+                        @if (order.tracking_status !== 'delivered') {
+                          <button (click)="advanceOrder(order)"
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4 py-2.5 rounded-lg transition">
+                            Avanzar
+                          </button>
+                        } @else {
+                          <span class="text-xs text-gray-500">Completado</span>
+                        }
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No hay pedidos registrados</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       }

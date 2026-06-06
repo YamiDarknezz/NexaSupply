@@ -43,12 +43,12 @@ interface Summary {
         </div>
         @if (view === 'list') {
           <button (click)="openNew()"
-            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition">
             + Nueva Venta
           </button>
         } @else {
           <button (click)="view = 'list'"
-            class="text-gray-500 hover:text-gray-900 text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+            class="text-gray-500 hover:text-gray-900 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
             ← Volver
           </button>
         }
@@ -61,32 +61,32 @@ interface Summary {
     <!-- ══════════ LIST VIEW ══════════ -->
     @if (view === 'list') {
       <!-- Summary cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
+        <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 shadow-sm">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Ventas Hoy</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">{{ summary.sales_today }}</p>
-          <p class="text-sm text-blue-600 font-medium mt-0.5">S/ {{ fmt(summary.total_today) }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{{ summary.sales_today }}</p>
+          <p class="text-xs sm:text-sm text-blue-600 font-medium mt-0.5">S/ {{ fmt(summary.total_today) }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+        <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 shadow-sm">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Ventas Mes</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">{{ summary.sales_month }}</p>
-          <p class="text-sm text-blue-600 font-medium mt-0.5">S/ {{ fmt(summary.total_month) }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{{ summary.sales_month }}</p>
+          <p class="text-xs sm:text-sm text-blue-600 font-medium mt-0.5">S/ {{ fmt(summary.total_month) }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+        <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 shadow-sm">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Histórico</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">S/ {{ fmt(summary.total_all_time) }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">S/ {{ fmt(summary.total_all_time) }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+        <div class="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 shadow-sm">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Ticket Promedio</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">S/ {{ fmt(summary.avg_ticket) }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">S/ {{ fmt(summary.avg_ticket) }}</p>
         </div>
       </div>
 
       <!-- Filters -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex gap-2 mb-4 flex-wrap">
         @for (f of filters; track f.val) {
           <button (click)="period = f.val"
-            class="px-3 py-1.5 rounded-full text-xs font-medium transition"
+            class="px-3 py-2 rounded-full text-xs font-medium transition"
             [class.bg-blue-600]="period === f.val" [class.text-white]="period === f.val"
             [class.bg-white]="period !== f.val" [class.text-gray-600]="period !== f.val"
             [class.border]="period !== f.val" [class.border-gray-200]="period !== f.val">
@@ -175,7 +175,7 @@ interface Summary {
                   class="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="Precio S/" />
                 <button (click)="addItem()"
-                  class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap">
+                  class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition whitespace-nowrap">
                   + Agregar
                 </button>
               </div>
@@ -184,30 +184,32 @@ interface Summary {
 
           @if (lineItems.length > 0) {
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
-                  <tr>
-                    <th class="text-left px-4 py-2 font-medium text-gray-500">Producto</th>
-                    <th class="text-center px-4 py-2 font-medium text-gray-500">Cant.</th>
-                    <th class="text-right px-4 py-2 font-medium text-gray-500">Precio unit.</th>
-                    <th class="text-right px-4 py-2 font-medium text-gray-500">Subtotal</th>
-                    <th class="px-2 py-2"></th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                  @for (li of lineItems; track $index; let i = $index) {
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-4 py-2 font-medium text-gray-900">{{ li.product_name }}</td>
-                      <td class="px-4 py-2 text-center text-gray-700">{{ li.quantity }}</td>
-                      <td class="px-4 py-2 text-right text-gray-700">S/ {{ fmt(li.unit_price) }}</td>
-                      <td class="px-4 py-2 text-right font-semibold">S/ {{ fmt(li.quantity * li.unit_price) }}</td>
-                      <td class="px-2 py-2">
-                        <button (click)="removeItem(i)" class="text-red-400 hover:text-red-600 text-base leading-none transition">✕</button>
-                      </td>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-gray-50 border-b">
+                    <tr>
+                      <th class="text-left px-4 py-3 font-medium text-gray-500">Producto</th>
+                      <th class="text-center px-4 py-3 font-medium text-gray-500">Cant.</th>
+                      <th class="text-right px-4 py-3 font-medium text-gray-500">Precio unit.</th>
+                      <th class="text-right px-4 py-3 font-medium text-gray-500">Subtotal</th>
+                      <th class="px-2 py-3"></th>
                     </tr>
-                  }
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    @for (li of lineItems; track $index; let i = $index) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{{ li.product_name }}</td>
+                        <td class="px-4 py-3 text-center text-gray-700 whitespace-nowrap">{{ li.quantity }}</td>
+                        <td class="px-4 py-3 text-right text-gray-700 whitespace-nowrap">S/ {{ fmt(li.unit_price) }}</td>
+                        <td class="px-4 py-3 text-right font-semibold whitespace-nowrap">S/ {{ fmt(li.quantity * li.unit_price) }}</td>
+                        <td class="px-2 py-3">
+                          <button (click)="removeItem(i)" class="text-red-400 hover:text-red-600 transition w-10 h-10 flex items-center justify-center rounded-lg hover:bg-red-50">✕</button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
           }
 
@@ -311,7 +313,7 @@ interface Summary {
       <!-- Print button -->
       <div class="flex justify-end mb-4 gap-3 no-print">
         <button (click)="printSale()"
-          class="bg-gray-700 hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+          class="bg-gray-700 hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition flex items-center gap-2">
           🖨️ Imprimir / Exportar PDF
         </button>
       </div>
@@ -351,26 +353,28 @@ interface Summary {
           }
         </div>
 
-        <table class="w-full text-sm mb-6">
-          <thead>
-            <tr class="border-b border-gray-200">
-              <th class="text-left py-2 font-medium text-gray-500">Producto</th>
-              <th class="text-center py-2 font-medium text-gray-500">Cant.</th>
-              <th class="text-right py-2 font-medium text-gray-500">Precio</th>
-              <th class="text-right py-2 font-medium text-gray-500">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of currentSale.items; track item.id) {
-              <tr class="border-b border-gray-100">
-                <td class="py-2">{{ item.product_name }}</td>
-                <td class="py-2 text-center">{{ item.quantity }}</td>
-                <td class="py-2 text-right">S/ {{ fmt(item.unit_price) }}</td>
-                <td class="py-2 text-right">S/ {{ fmt(item.subtotal) }}</td>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-3 px-2 font-medium text-gray-500">Producto</th>
+                <th class="text-center py-3 px-2 font-medium text-gray-500">Cant.</th>
+                <th class="text-right py-3 px-2 font-medium text-gray-500">Precio</th>
+                <th class="text-right py-3 px-2 font-medium text-gray-500">Subtotal</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (item of currentSale.items; track item.id) {
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-2 whitespace-nowrap">{{ item.product_name }}</td>
+                  <td class="py-3 px-2 text-center whitespace-nowrap">{{ item.quantity }}</td>
+                  <td class="py-3 px-2 text-right whitespace-nowrap">S/ {{ fmt(item.unit_price) }}</td>
+                  <td class="py-3 px-2 text-right whitespace-nowrap">S/ {{ fmt(item.subtotal) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
 
         <div class="space-y-1 text-sm max-w-xs ml-auto">
           <div class="flex justify-between text-gray-600">
